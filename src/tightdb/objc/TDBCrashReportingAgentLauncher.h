@@ -18,9 +18,13 @@
  *
  **************************************************************************/
 
-#import <tightdb/objc/TDBContext.h>
+#import <Foundation/Foundation.h>
 
+/****************	  TDBCrashReportingAgentLauncher	****************/
 
-@interface TDBContext (CrashReporting)
+@interface TDBCrashReportingAgentLauncher: NSObject
+
+// Crash reporting
+- (void)startCrashReporter;
 
 @end
