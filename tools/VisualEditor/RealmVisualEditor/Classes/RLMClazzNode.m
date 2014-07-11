@@ -144,6 +144,11 @@
 
 }
 
+- (BOOL)hasChildNodes
+{
+    return displayedArrays.count > 0;
+}
+
 #pragma mark - Private methods
 
 - (RLMArray *)allObjects

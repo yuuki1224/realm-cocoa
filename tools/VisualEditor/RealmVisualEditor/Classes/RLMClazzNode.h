@@ -31,4 +31,6 @@
 
 - (void)removeDisplayingOfArrayFromObjectAtIndex:(NSUInteger)index;
 
+- (BOOL)hasChildNodes;
+
 @end

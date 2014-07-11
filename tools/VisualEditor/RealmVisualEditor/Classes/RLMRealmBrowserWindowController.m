@@ -117,6 +117,7 @@ const NSUInteger kMaxNumberOfArrayEntriesInToolTip = 5;
 
 - (IBAction)insertObject:(id)sender
 {
+    
 }
 
 - (IBAction)removeObject:(id)sender
@@ -130,13 +131,21 @@ const NSUInteger kMaxNumberOfArrayEntriesInToolTip = 5;
     RLMNavigationState *currentState = self.currentState;
     
     if (menuItem == applicationDelegate.insertObjectMenuItem) {
-        return YES;
+        if ([currentState.selectedType isMemberOfClass:[RLMClazzNode class]]) {
+            RLMClazzNode *clazzNode = (RLMClazzNode *)currentState.selectedType;
+            return !clazzNode.hasChildNodes;
+        }
     }
     else if (menuItem == applicationDelegate.removeObjectMenuItem) {
-        return currentState.selectedType.instanceCount > 0 && currentState.selectedInstanceIndex >= 0;
+        if ([currentState.selectedType isMemberOfClass:[RLMClazzNode class]]) {
+            RLMClazzNode *clazzNode = (RLMClazzNode *)currentState.selectedType;
+            if (!clazzNode.hasChildNodes) {
+                return currentState.selectedType.instanceCount > 0 && currentState.selectedInstanceIndex >= 0;
+            }
+        }
     }
     
-    return YES;
+    return NO;
 }
 
 @end
