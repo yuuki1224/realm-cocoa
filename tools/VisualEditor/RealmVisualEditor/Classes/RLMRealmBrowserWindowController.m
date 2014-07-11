@@ -17,8 +17,10 @@
 ////////////////////////////////////////////////////////////////////////////
 
 #import "RLMRealmBrowserWindowController.h"
+
 #import "NSTableColumn+Resize.h"
 #import "RLMNavigationStack.h"
+#import "RLMApplicationDelegate.h"
 
 const NSUInteger kMaxNumberOfArrayEntriesInToolTip = 5;
 
@@ -111,6 +113,30 @@ const NSUInteger kMaxNumberOfArrayEntriesInToolTip = 5;
                             forSegment:0];
     [self.navigationButtons setEnabled:[navigationStack canNavigateForward]
                             forSegment:1];
+}
+
+- (IBAction)insertObject:(id)sender
+{
+}
+
+- (IBAction)removeObject:(id)sender
+{
+
+}
+
+- (BOOL)validateMenuItem:(NSMenuItem *)menuItem
+{
+    RLMApplicationDelegate *applicationDelegate = (RLMApplicationDelegate *)[NSApplication sharedApplication].delegate;
+    RLMNavigationState *currentState = self.currentState;
+    
+    if (menuItem == applicationDelegate.insertObjectMenuItem) {
+        return YES;
+    }
+    else if (menuItem == applicationDelegate.removeObjectMenuItem) {
+        return currentState.selectedType.instanceCount > 0 && currentState.selectedInstanceIndex >= 0;
+    }
+    
+    return YES;
 }
 
 @end

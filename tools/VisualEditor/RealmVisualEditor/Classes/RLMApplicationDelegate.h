@@ -22,5 +22,7 @@
 
 @property (nonatomic, weak) IBOutlet NSMenu *fileMenu;
 @property (nonatomic, weak) IBOutlet NSMenuItem *openMenuItem;
+@property (nonatomic, weak) IBOutlet NSMenuItem *insertObjectMenuItem;
+@property (nonatomic, weak) IBOutlet NSMenuItem *removeObjectMenuItem;
 
 @end

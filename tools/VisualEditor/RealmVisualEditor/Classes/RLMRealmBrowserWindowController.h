@@ -34,6 +34,8 @@ extern const NSUInteger kMaxNumberOfArrayEntriesInToolTip;
 
 - (void)addNavigationState:(RLMNavigationState *)state fromViewController:(RLMViewController *)controller;
 
+
+
 - (IBAction)userClicksOnNavigationButtons:(NSSegmentedControl *)buttons;
 
 @end
