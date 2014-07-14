@@ -32,6 +32,7 @@ appledoc \
     --ignore "Realm/Tests/TransactionTests.m" \
     --ignore "Realm/Tests/ObjectTests.m" \
     --template ${SRCROOT}/docs/templates \
+    --include ${SRCROOT}/docs/src/programming-guides \
     --exit-threshold 1 \
     Realm
 
