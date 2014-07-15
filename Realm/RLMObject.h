@@ -209,6 +209,10 @@
 /**
  Get objects matching the given predicate for this type from the default Realm.
  
+ Perhaps best illustrated by an example:
+ 
+    RLMArray *results = [Person objectsWhere:@"name STARTSWITH 'A' AND age > 10"];
+
  See Apple's
  [Predicates Programming Guide](https://developer.apple.com/library/mac/documentation/Cocoa/Conceptual/Predicates/predicates.html)
  for more information about building predicates.
