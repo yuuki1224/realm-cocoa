@@ -153,11 +153,11 @@
 }
 
 + (RLMArray *)allObjects {
-    return RLMGetObjects(RLMRealm.defaultRealm, self.className, nil, nil);
+    return RLMGetObjects(RLMRealm.defaultRealm, self.className, nil);
 }
 
 + (RLMArray *)allObjectsInRealm:(RLMRealm *)realm {
-    return RLMGetObjects(realm, self.className, nil, nil);
+    return RLMGetObjects(realm, self.className, nil);
 }
 
 + (RLMArray *)objectsWhere:(NSString *)predicateFormat, ... {
@@ -181,11 +181,11 @@
 }
 
 + (RLMArray *)objectsWithPredicate:(NSPredicate *)predicate {
-    return RLMGetObjects(RLMRealm.defaultRealm, self.className, predicate, nil);
+    return RLMGetObjects(RLMRealm.defaultRealm, self.className, predicate);
 }
 
 +(RLMArray *)objectsInRealm:(RLMRealm *)realm withPredicate:(NSPredicate *)predicate {
-    return RLMGetObjects(realm, self.className, predicate, nil);
+    return RLMGetObjects(realm, self.className, predicate);
 }
 
 - (NSString *)JSONString {
