@@ -51,6 +51,10 @@
 // validation helper
 //
 static inline void RLMArrayTableViewValidateAttached(RLMArrayTableView *ar) {
+    if (!ar->_viewCreated) {
+        ar->_backingView = ar->_backingQuery.find_all();
+        ar->_viewCreated = YES;
+    }
     if (!ar->_backingView.is_attached()) {
         @throw [NSException exceptionWithName:@"RLMException" reason:@"RLMArray is no longer valid" userInfo:nil];
     }
