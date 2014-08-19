@@ -1,10 +1,34 @@
-0.83.0 Release notes (YYYY-MM-DD)
+0.84.0 Release notes (YYYY-MM-DD)
+=============================================================
+
+### API breaking changes
+
+### Enhancements
+
+* Add property `deletedFromRealm` to RLMObject to indicate objects which have been deleted.
+* Add support for the IN operator in predicates.
+* Switch to building the SDK from source when using CocoaPods and add a
+  Realm.Headers subspec for use in targets that should not link a copy of Realm
+  (such as test targets).
+* Allow unregistering from change notifications in the change notification
+  handler block.
+
+### Bugfixes
+
+* Handle object cycles in -[RLMObject description] and -[RLMArray description].
+* Lowered the deployment target for the Xcode 6 projects and Swift examples to
+  iOS 7.0, as they didn't actually require 8.0.
+* Support setting model properties starting with the letter 'z'
+
+0.83.0 Release notes (2014-08-13)
 =============================================================
 
 ### API breaking changes
 
 * Realm-Xcode6.xcodeproj now only builds using Xcode6-Beta5.
 * Properties to be persisted in Swift classes must be explicitly declared as `dynamic`.
+* Subclasses of RLMObject subclasses now throw an exception on startup, rather
+  than when added to a Realm.
 
 ### Enhancements
 

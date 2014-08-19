@@ -66,8 +66,8 @@ void throw_objc_exception(exception &ex) {
 }
  
 // create NSError from c++ exception
-inline NSError* make_realm_error(RLMError code, exception &ex) {
-    NSMutableDictionary* details = [NSMutableDictionary dictionary];
+inline NSError *make_realm_error(RLMError code, exception &ex) {
+    NSMutableDictionary *details = [NSMutableDictionary dictionary];
     [details setValue:[NSString stringWithUTF8String:ex.what()] forKey:NSLocalizedDescriptionKey];
     [details setValue:@(code) forKey:@"Error Code"];
     return [NSError errorWithDomain:@"io.realm" code:code userInfo:details];
@@ -81,6 +81,7 @@ inline NSError* make_realm_error(RLMError code, exception &ex) {
 + (instancetype)createWithRealm:(id)target;
 @property (nonatomic, weak) RLMRealm *realm;
 @end
+
 @implementation RLMWeakTarget
 + (instancetype)createWithRealm:(RLMRealm *)realm {
     RLMWeakTarget *wt = [RLMWeakTarget new];
@@ -107,14 +108,14 @@ static NSMutableDictionary *s_realmsPerPath;
 //  rather than by the path (since the path is not a reliable identifier). This requires additional support
 //  from the core library though, because the inode,device number pair needs to be taken from the open file
 //  (to avoid race conditions).
-inline RLMRealm *cachedRealm(NSString *path) {
+static inline RLMRealm *cachedRealm(NSString *path) {
     mach_port_t threadID = pthread_mach_thread_np(pthread_self());
     @synchronized(s_realmsPerPath) {
         return [s_realmsPerPath[path] objectForKey:@(threadID)];
     }
 }
 
-inline void cacheRealm(RLMRealm *realm, NSString *path) {
+static inline void cacheRealm(RLMRealm *realm, NSString *path) {
     mach_port_t threadID = pthread_mach_thread_np(pthread_self());
     @synchronized(s_realmsPerPath) {
         if (!s_realmsPerPath[path]) {
@@ -124,13 +125,13 @@ inline void cacheRealm(RLMRealm *realm, NSString *path) {
     }
 }
 
-inline NSArray *realmsAtPath(NSString *path) {
+static inline NSArray *realmsAtPath(NSString *path) {
     @synchronized(s_realmsPerPath) {
         return [s_realmsPerPath[path] objectEnumerator].allObjects;
     }
 }
 
-inline void clearRealmCache() {
+static inline void clearRealmCache() {
     @synchronized(s_realmsPerPath) {
         for (NSMapTable *map in s_realmsPerPath.allValues) {
             [map removeAllObjects];
@@ -144,7 +145,7 @@ inline void clearRealmCache() {
 @end
 
 
-NSString *const c_defaultRealmFileName = @"default.realm";
+NSString * const c_defaultRealmFileName = @"default.realm";
 static BOOL s_useInMemoryDefaultRealm = NO;
 static NSString *s_defaultRealmPath = nil;
 static NSArray *s_objectDescriptors = nil;
@@ -275,7 +276,7 @@ static NSArray *s_objectDescriptors = nil;
     }
     
     // try to reuse existing realm first
-    RLMRealm *realm = cachedRealm(path);
+    __autoreleasing RLMRealm *realm = cachedRealm(path);
     if (realm) {
         // if already opened with different read permissions then throw
         if (realm.isReadOnly != readonly) {
@@ -349,15 +350,20 @@ static NSArray *s_objectDescriptors = nil;
 
     // apply schema
     [realm beginWriteTransaction];
-    RLMRealmSetSchema(realm, schema);
-    [realm commitWriteTransaction];
-    
+    @try {
+        RLMRealmSetSchema(realm, schema);
+    }
+    @finally {
+        // FIXME: should rollback on exceptions rather than commit once that's implemented
+        [realm commitWriteTransaction];
+    }
+
     // cache realm at this path if using a vanilla realm
     if (!dynamic && !customSchema) {
         cacheRealm(realm, path);
     }
     
-#if !TARGET_IPHONE
+#if !TARGET_OS_IPHONE
     // start update timer on osx
     realm->_updateTimer = [NSTimer scheduledTimerWithTimeInterval:0.1
                                                            target:[RLMWeakTarget createWithRealm:realm]
@@ -393,7 +399,7 @@ static NSArray *s_objectDescriptors = nil;
 
 - (void)sendNotifications {
     // call this realms notification blocks
-    for (RLMNotificationToken *token in _notificationHandlers) {
+    for (RLMNotificationToken *token in [_notificationHandlers copy]) {
         token.block(RLMRealmDidChangeNotification, self);
     }
 }
@@ -551,17 +557,17 @@ static NSArray *s_objectDescriptors = nil;
 }
 
 - (void)deleteObjects:(id)array {
-    if ([array isKindOfClass:NSArray.class]) {
+    if (NSArray *nsArray = RLMDynamicCast<NSArray>(array)) {
         // for arrays and standalone delete each individually
-        for (id obj in array) {
+        for (id obj in nsArray) {
             if ([obj isKindOfClass:RLMObject.class]) {
                 RLMDeleteObjectFromRealm(obj);
             }
         }
     }
-    else if ([array isKindOfClass:RLMArray.class]) {
+    else if (RLMArray *rlmArray = RLMDynamicCast<RLMArray>(array)) {
         // call deleteObjectsFromRealm for our RLMArray
-        [(RLMArray *)array deleteObjectsFromRealm];
+        [rlmArray deleteObjectsFromRealm];
     }
     else {
         @throw [NSException exceptionWithName:@"RLMException" reason:@"Invalid array type - container must be an RLMArray or NSArray of RLMObjects" userInfo:nil];

@@ -22,13 +22,13 @@
 #import "RLMObject.h"
 #import "RLMUtil.hpp"
 
-#ifdef REALM_SWIFT
+#if REALM_SWIFT
 #import <Realm/Realm-Swift.h>
 #endif
 
 #import <objc/runtime.h>
 
-NSString *const c_objectTableNamePrefix = @"class_";
+NSString * const c_objectTableNamePrefix = @"class_";
 const char *c_metadataTableName = "metadata";
 const char *c_versionColumnName = "version";
 const size_t c_versionColumnIndex = 0;
@@ -77,6 +77,20 @@ static NSMutableDictionary *s_classNameToMangledName;
     }
 }
 
+static inline bool IsRLMObjectSubclass(Class cls) {
+    Class parent = class_getSuperclass(cls);
+    if (parent != RLMObject.class) {
+        if (parent && RLMIsSubclass(parent, RLMObject.class)) {
+            @throw [NSException exceptionWithName:@"RLMException"
+                                           reason:[NSString stringWithFormat:@"Class '%s' inherits from a RLMObject subclass. This is currently not supported. All model classes must inherit directly from RLMObject and cannot have subclasses of their own.",
+                                                   class_getName(cls)]
+                                         userInfo:nil];
+        }
+        return false;
+    }
+    return true;
+}
+
 + (void)initialize {
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
@@ -89,13 +103,13 @@ static NSMutableDictionary *s_classNameToMangledName;
         unsigned int numClasses;
         Class *classes = objc_copyClassList(&numClasses);
         for (unsigned int i = 0; i < numClasses; i++) {
-            if (class_getSuperclass(classes[i]) != RLMObject.class) {
+            Class cls = classes[i];
+            if (!IsRLMObjectSubclass(cls)) {
                 continue;
             }
-            Class cls = classes[i];
 
             RLMObjectSchema *objectSchema = nil;
-#ifdef REALM_SWIFT
+#if REALM_SWIFT
             NSString *className = NSStringFromClass(cls);
             if ([RLMSwiftSupport isSwiftClassName:className]) {
                 objectSchema = [RLMSwiftSupport schemaForObjectClass:cls];
@@ -154,8 +168,8 @@ static NSMutableDictionary *s_classNameToMangledName;
 }
 
 
-inline tightdb::TableRef RLMVersionTable(RLMRealm *realm) {
-    tightdb::TableRef table = realm.group->get_table(c_metadataTableName);
+static inline tightdb::TableRef RLMVersionTable(RLMRealm *realm) {
+    tightdb::TableRef table = realm.group->get_or_add_table(c_metadataTableName);
     if (table->get_column_count() == 0) {
         // create columns
         table->add_column(tightdb::type_Int, c_versionColumnName);
@@ -177,7 +191,7 @@ void RLMRealmSetSchemaVersion(RLMRealm *realm, NSUInteger version) {
 }
 
 + (Class)classForString:(NSString *)className {
-#ifdef REALM_SWIFT
+#if REALM_SWIFT
     if (s_classNameToMangledName[className]) {
         className = s_classNameToMangledName[className];
     }
