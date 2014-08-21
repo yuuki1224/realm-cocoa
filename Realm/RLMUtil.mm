@@ -77,7 +77,7 @@ static inline bool nsnumber_is_like_double(NSNumber *obj)
             strcmp(data_type, @encode(long long)) == 0 ||
             strcmp(data_type, @encode(unsigned int)) == 0 ||
             strcmp(data_type, @encode(unsigned long)) == 0 ||
-            // LCOV_EXCL_START - long long on some systems is as big as a long.
+            // LCOV_EXCL_START - long long on some systems is as wide as a long.
             strcmp(data_type, @encode(unsigned long long)) == 0);
             // LCOV_EXCL_STOP
 }
