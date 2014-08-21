@@ -21,6 +21,9 @@
 
 #import <libkern/OSAtomic.h>
 
+#import <stdint.h>
+#import <float.h>
+
 #pragma mark - Test Objects
 
 #pragma mark DefaultObject
@@ -804,6 +807,31 @@ RLM_ARRAY_TYPE(CycleObject)
 
     XCTAssertEqual(obj1.deletedFromRealm, YES);
     XCTAssertNil(obj1.realm, @"Realm should be nil after deletion");
+}
+
+- (void)testDoubleObjectSet
+{
+    RLMRealm *realm = [self realmWithTestPath];
+    DoubleObject *obj = [[DoubleObject alloc] initWithObject:@[@0]];
+    [realm beginWriteTransaction];
+    [realm addObject:obj];
+    [obj setObject:[NSNumber numberWithDouble:DBL_MAX] forKeyedSubscript:@"doubleCol"];
+    [obj setObject:[NSNumber numberWithFloat:FLT_MAX] forKeyedSubscript:@"doubleCol"];
+    [obj setObject:[NSNumber numberWithInt:INT_MAX] forKeyedSubscript:@"doubleCol"];
+    [obj setObject:[NSNumber numberWithLong:(long)LONG_MAX] forKeyedSubscript:@"doubleCol"];
+    [obj
+     setObject:[NSNumber numberWithLongLong:(long long)LONG_LONG_MAX]
+     forKeyedSubscript:@"doubleCol"];
+    [obj
+     setObject:[NSNumber numberWithUnsignedInt:(unsigned int)UINTMAX_MAX]
+     forKeyedSubscript:@"doubleCol"];
+    [obj
+     setObject:[NSNumber numberWithUnsignedLong:(unsigned long)ULONG_MAX]
+     forKeyedSubscript:@"doubleCol"];
+    [obj
+     setObject:[NSNumber numberWithUnsignedLongLong:(unsigned long long)ULONG_LONG_MAX]
+     forKeyedSubscript:@"doubleCol"];
+    [realm commitWriteTransaction];
 }
 
 @end
