@@ -10,13 +10,19 @@
 
 ### Enhancements
 
+* Updating to core library version 0.82.1.
 * Add property `deletedFromRealm` to RLMObject to indicate objects which have been deleted.
 * Add support for the IN operator in predicates.
+* Add support for the BETWEEN operator in link queries.
+* Add support for multi-level link queries in predicates (e.g. `foo.bar.baz = 5`).
 * Switch to building the SDK from source when using CocoaPods and add a
   Realm.Headers subspec for use in targets that should not link a copy of Realm
   (such as test targets).
 * Allow unregistering from change notifications in the change notification
   handler block.
+* Significant performance improvements when holding onto large numbers of RLMObjects.
+* Improved performance during RLMArray iteration, especially when mutating
+  contained objects.
 
 ### Bugfixes
 
@@ -26,6 +32,8 @@
 * Lowered the deployment target for the Xcode 6 projects and Swift examples to
   iOS 7.0, as they didn't actually require 8.0.
 * Support setting model properties starting with the letter 'z'
+* Fixed crashes that could result from switching between Debug and Relase
+  builds of Realm.
 
 0.83.0 Release notes (2014-08-13)
 =============================================================

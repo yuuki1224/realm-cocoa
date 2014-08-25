@@ -39,7 +39,7 @@ static inline tightdb::TableRef RLMTableForObjectClass(RLMRealm *realm,
 static inline tightdb::TableRef RLMTableForObjectClass(RLMRealm *realm,
                                                        NSString *className) {
     NSString *tableName = realm.schema.tableNamesForClass[className];
-    return realm.group->get_table(tableName.UTF8String);
+    return realm.group->get_or_add_table(tableName.UTF8String);
 }
 
 
@@ -261,6 +261,11 @@ void RLMAddObjectToRealm(RLMObject *object, RLMRealm *realm) {
     RLMObjectSchema *schema = realm.schema[objectClassName];
     object.objectSchema = schema;
     object.realm = realm;
+
+    // _row may already be attached to a different table if the object was
+    // already in another realm, and setting it to the new table doesn't
+    // automatically detach it
+    object->_row.detach();
 
     // create row in table
     tightdb::Table &table = *schema->_table;
