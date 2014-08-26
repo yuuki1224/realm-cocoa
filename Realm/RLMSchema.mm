@@ -104,6 +104,22 @@ static inline bool IsRLMObjectSubclass(Class cls) {
 
         unsigned int numClasses;
         Class *classes = objc_copyClassList(&numClasses);
+
+#if REALM_SWIFT
+        // create map of demangled names
+        for (unsigned int i = 0; i < numClasses; i++) {
+            Class cls = classes[i];
+            if (!IsRLMObjectSubclass(cls)) {
+                continue;
+            }
+
+            NSString *className = NSStringFromClass(cls);
+            if ([RLMSwiftSupport isSwiftClassName:className]) {
+                s_classNameToMangledName[[RLMSwiftSupport demangleClassName:className]] = cls;
+            }
+        }
+#endif
+
         for (unsigned int i = 0; i < numClasses; i++) {
             Class cls = classes[i];
             if (!IsRLMObjectSubclass(cls)) {
@@ -116,7 +132,6 @@ static inline bool IsRLMObjectSubclass(Class cls) {
             if ([RLMSwiftSupport isSwiftClassName:className]) {
                 objectSchema = [RLMSwiftSupport schemaForObjectClass:cls];
                 objectSchema.standaloneClass = RLMStandaloneAccessorClassForObjectClass(cls, objectSchema);
-                s_classNameToMangledName[objectSchema.className] = objectSchema.objectClass;
             }
             else {
                 objectSchema = [RLMObjectSchema schemaForObjectClass:cls];

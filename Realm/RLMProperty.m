@@ -167,6 +167,7 @@
                 
                 // verify type
                 Class cls = [RLMSchema classForString:self.objectClassName];
+                
                 if (class_getSuperclass(cls) != RLMObject.class) {
                     if ([_objectClassName isEqualToString:@"RLMArray"]) {
                         @throw [NSException exceptionWithName:@"RLMException"
