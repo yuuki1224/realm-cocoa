@@ -93,7 +93,7 @@ static inline bool IsRLMObjectSubclass(Class cls) {
     return true;
 }
 
-+ (void)initialize {
++ (void)initializeSharedSchema {
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
         // initialize mangled name mapping

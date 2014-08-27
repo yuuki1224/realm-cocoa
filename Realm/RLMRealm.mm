@@ -145,15 +145,6 @@ static NSArray *s_objectDescriptors = nil;
     return tightdb::Version::has_feature(tightdb::feature_Debug);
 }
 
-+ (void)initialize {
-    // set up global realm cache
-    static dispatch_once_t onceToken;
-    dispatch_once(&onceToken, ^{
-        // initilize realm cache
-        clearRealmCache();
-    });
-}
-
 - (instancetype)initWithPath:(NSString *)path readOnly:(BOOL)readonly {
     self = [super init];
     if (self) {
@@ -250,7 +241,17 @@ static NSArray *s_objectDescriptors = nil;
                                                can only be called from a thread with a runloop.",
                                                NSStringFromSelector(_cmd)] userInfo:nil];
     }
-    
+
+    // set up global realm cache and schema
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        // initilize realm cache
+        clearRealmCache();
+
+        // parse shared schema
+        [RLMSchema initializeSharedSchema];
+    });
+
     // try to reuse existing realm first
     __autoreleasing RLMRealm *realm = cachedRealm(path);
     if (realm) {

@@ -59,6 +59,10 @@ void RLMRealmSetSchemaVersion(RLMRealm *realm, NSUInteger version);
 //
 @class RLMRealm;
 @interface RLMSchema ()
+// initialize shared schema
++ (void)initializeSharedSchema;
+
+// rw property
 @property (nonatomic, readwrite, copy) NSArray *objectSchema;
 
 // mapping of className to tableName
