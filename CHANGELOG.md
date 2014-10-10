@@ -2,6 +2,7 @@
 =============================================================
 
 ### API breaking changes
+
 * RLMArray has been split into two classes, `RLMArray` and `RLMResults`. RLMArray is
   used for object properties as in previous releases. Moving forward all methods used to
   enumerate, query, and sort objects return an instance of a new class `RLMResults`. This
@@ -16,6 +17,9 @@
 * Add support for sorting `RLMArray`s by multiple columns with `sortedResultsUsingDescriptors:`
 
 ### Bugfixes
+
+* Don't run the query twice when `firstObject` or `lastObject` are called on an
+  `RLMResults` which has not had its results accessed already.
 
 0.86.3 Release notes (2014-10-09)
 =============================================================

@@ -180,6 +180,8 @@ static inline void RLMResultsValidateInWriteTransaction(RLMResults *ar) {
 }
 
 - (id)firstObject {
+    RLMResultsValidate(self);
+
     if (self.count) {
         return [self objectAtIndex:0];
     }
@@ -187,6 +189,8 @@ static inline void RLMResultsValidateInWriteTransaction(RLMResults *ar) {
 }
 
 - (id)lastObject {
+    RLMResultsValidate(self);
+
     NSUInteger count = self.count;
     if (count) {
         return [self objectAtIndex:count-1];
