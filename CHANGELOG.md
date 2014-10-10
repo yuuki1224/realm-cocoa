@@ -15,6 +15,8 @@
 ### Enhancements
 
 * Add support for sorting `RLMArray`s by multiple columns with `sortedResultsUsingDescriptors:`
+* Make fast enumeration of `RLMArray` and `RLMResults` ~10% faster and
+  `objectAtIndex:` ~25% faster.
 
 ### Bugfixes
 

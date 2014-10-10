@@ -24,9 +24,9 @@
 #import "RLMObjectStore.hpp"
 #import "RLMQueryUtil.hpp"
 #import "RLMConstants.h"
-#import <objc/runtime.h>
+#import "RLMUtil.hpp"
 
-#import <tightdb/util/unique_ptr.hpp>
+#import <objc/runtime.h>
 
 //
 // RLMResults implementation
@@ -35,6 +35,7 @@
     std::unique_ptr<tightdb::Query> _backingQuery;
     tightdb::TableView _backingView;
     BOOL _viewCreated;
+    RLMObjectSchema *_objectSchema;
 }
 
 - (instancetype)initPrivate {
@@ -67,7 +68,7 @@
 //
 // validation helper
 //
-static inline void RLMResultsValidateAttached(RLMResults *ar) {
+static inline void RLMResultsValidateAttached(__unsafe_unretained RLMResults *ar) {
     if (!ar->_viewCreated) {
         // create backing view if needed
         ar->_backingView = ar->_backingQuery->find_all();
@@ -81,12 +82,12 @@ static inline void RLMResultsValidateAttached(RLMResults *ar) {
         ar->_backingView.sync_if_needed();
     }
 }
-static inline void RLMResultsValidate(RLMResults *ar) {
+static inline void RLMResultsValidate(__unsafe_unretained RLMResults *ar) {
     RLMResultsValidateAttached(ar);
     RLMCheckThread(ar->_realm);
 }
 
-static inline void RLMResultsValidateInWriteTransaction(RLMResults *ar) {
+static inline void RLMResultsValidateInWriteTransaction(__unsafe_unretained RLMResults *ar) {
     // first verify attached
     RLMResultsValidate(ar);
 
@@ -129,7 +130,7 @@ static inline void RLMResultsValidateInWriteTransaction(RLMResults *ar) {
 
     NSUInteger batchCount = 0, index = state->state, count = state->extra[1];
 
-    RLMObjectSchema *objectSchema = _realm.schema[_objectClassName];
+    RLMObjectSchema *objectSchema = RLMGetObjectSchema(_realm.schema, _objectClassName, _objectSchema);
     Class accessorClass = objectSchema.accessorClass;
     while (index < count && batchCount < len) {
         // get acessor fot the object class
@@ -176,7 +177,8 @@ static inline void RLMResultsValidateInWriteTransaction(RLMResults *ar) {
     if (index >= self.count) {
         @throw [NSException exceptionWithName:@"RLMException" reason:@"Index is out of bounds." userInfo:@{@"index": @(index)}];
     }
-    return RLMCreateObjectAccessor(_realm, _objectClassName, _backingView.get_source_ndx(index));
+    return RLMCreateObjectAccessor(_realm, RLMGetObjectSchema(_realm.schema, _objectClassName, _objectSchema),
+                                   _backingView.get_source_ndx(index));
 }
 
 - (id)firstObject {

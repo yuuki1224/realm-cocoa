@@ -17,21 +17,25 @@
 ////////////////////////////////////////////////////////////////////////////
 
 #import "RLMArray_Private.hpp"
-#import "RLMObjectSchema_Private.hpp"
-#import "RLMProperty_Private.h"
-#import "RLMObject_Private.h"
-#import "RLMRealm_Private.hpp"
 #import "RLMConstants.h"
+#import "RLMObjectSchema_Private.hpp"
 #import "RLMObjectStore.hpp"
+#import "RLMObject_Private.h"
+#import "RLMProperty_Private.h"
 #import "RLMQueryUtil.hpp"
+#import "RLMRealm_Private.hpp"
 #import "RLMSchema.h"
+#import "RLMUtil.hpp"
 
 #import <objc/runtime.h>
 
 //
 // RLMArray implementation
 //
-@implementation RLMArrayLinkView 
+@implementation RLMArrayLinkView {
+    tightdb::LinkViewRef _backingLinkView;
+    RLMObjectSchema *_objectSchema;
+}
 
 + (RLMArrayLinkView *)arrayWithObjectClassName:(NSString *)objectClassName
                                           view:(tightdb::LinkViewRef)view
@@ -93,7 +97,7 @@ static inline void RLMValidateObjectClass(RLMObject *obj, NSString *expected) {
 
     NSUInteger batchCount = 0, index = state->state, count = state->extra[1];
 
-    RLMObjectSchema *objectSchema = _realm.schema[_objectClassName];
+    RLMObjectSchema *objectSchema = RLMGetObjectSchema(_realm.schema, _objectClassName, _objectSchema);
     Class accessorClass = objectSchema.accessorClass;
     tightdb::Table &table = *objectSchema->_table;
     while (index < count && batchCount < len) {
@@ -122,7 +126,7 @@ static inline void RLMValidateObjectClass(RLMObject *obj, NSString *expected) {
         @throw [NSException exceptionWithName:@"RLMException" reason:@"Index is out of bounds." userInfo:@{@"index": @(index)}];
     }
     return RLMCreateObjectAccessor(_realm,
-                                   _objectClassName,
+                                   RLMGetObjectSchema(_realm.schema, _objectClassName, _objectSchema),
                                    _backingLinkView->get(index).get_index());
 }
 

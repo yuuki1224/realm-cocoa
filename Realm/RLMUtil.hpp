@@ -114,3 +114,12 @@ static inline tightdb::StringData RLMStringDataWithNSString(NSString *string) {
 static inline tightdb::BinaryData RLMBinaryDataForNSData(NSData *data) {
     return tightdb::BinaryData(static_cast<const char *>(data.bytes), data.length);
 }
+
+static inline RLMObjectSchema *RLMGetObjectSchema(__unsafe_unretained RLMSchema *schema,
+                                                  __unsafe_unretained NSString *objectClassName,
+                                                  __strong RLMObjectSchema *&objectSchema) {
+    if (!objectSchema) {
+        objectSchema = schema[objectClassName];
+    }
+    return objectSchema;
+}
