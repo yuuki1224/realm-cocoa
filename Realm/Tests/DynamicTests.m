@@ -135,8 +135,10 @@
     RLMRealm *dyrealm = [self dynamicRealmWithTestPathAndSchema:nil];
     [dyrealm beginWriteTransaction];
     RLMObject *stringObject = [dyrealm createObject:StringObject.className withObject:@[@"string"]];
+    @autoreleasepool {
     [dyrealm createObject:AllTypesObject.className withObject:@[@NO, @2, @2.2f, @2.22, @"string2",
         [NSData dataWithBytes:"b" length:1], NSDate.date, @NO, @22, @0, stringObject]];
+    }
     [dyrealm commitWriteTransaction];
 
     XCTAssertEqual(1U, [dyrealm allObjects:StringObject.className].count);
